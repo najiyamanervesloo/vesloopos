@@ -1232,7 +1232,7 @@
             let html = `
         <div style="margin-bottom:24px; display:flex; justify-content:space-between; align-items:flex-end;">
             <div>
-                <div style="font-size:22px; font-weight:800;"> Welcome to the Bharat POS ❤️</div>
+                <div style="font-size:22px; font-weight:800;">Welcome to the Bharat POS ❤️</div>
                 <div style="font-size:13px; color:var(--slate); margin-top:3px;">Your store dashboard</div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
@@ -1402,8 +1402,10 @@
 
         function posHandleBarcode(e) {
             if (e) e.preventDefault();
-            const b = el('pos-barcode').value;
-            const p = appData.products.find(x => x.barcode === b);
+            const b = String(el('pos-barcode').value).trim();
+            if (!b) return;
+            // String() aur trim() add kiya gaya hai taaki Number vs String ki problem na aaye
+            const p = appData.products.find(x => String(x.barcode).trim() === b);
             if (p) { posAddToCart(p.id); el('pos-barcode').value = ""; }
             else { el('pos-barcode').value = ""; showToast("Barcode not found", "error"); }
         }
