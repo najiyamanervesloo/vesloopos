@@ -11,10 +11,8 @@
     <title>Bharat POS - Full Indian POS System</title>
 
     <!-- Favicon & Apple Touch Icon -->
-    <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
-    <link rel="apple-touch-icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+    <link rel="icon" href="poslogo.png">
+    <link rel="apple-touch-icon" href="poslogo.png">
 
     <!-- HTML5 QR/Barcode Scanner Library -->
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
@@ -600,8 +598,9 @@
         style="position: fixed; inset: 0; background: var(--navy); display: flex; align-items: center; justify-content: center; z-index: 9999;">
         <div class="card" style="padding: 40px; width: 100%; max-width: 400px; text-align: center;">
             <div
-                style="width: 60px; height: 60px; border-radius: 16px; background: var(--saffron); display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 20px;">
-                🛒</div>
+                style="width: 70px; height: 70px; margin: 0 auto 20px; border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fff; padding: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <img src="poslogo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
             <h2 style="margin-bottom: 5px; font-weight: 800; font-size: 24px; color: var(--text);">Bharat POS</h2>
             <p style="color: var(--slate); font-size: 13px; margin-bottom: 30px;">Please enter your password to access
                 the system</p>
@@ -664,8 +663,9 @@
         <div class="sidebar">
             <div style="padding: 20px 18px 16px; display: flex; align-items: center; gap: 10px;">
                 <div
-                    style="width: 36px; height: 36px; border-radius: 10px; background: var(--saffron); display: flex; align-items: center; justify-content: center; font-size: 18px;">
-                    🛒</div>
+                    style="width: 40px; height: 40px; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #fff; padding: 2px;">
+                    <img src="poslogo.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
                 <div>
                     <div
                         style="font-weight: 800; font-size: 16px; color: #fff; line-height: 1; letter-spacing: -0.3px;">
@@ -764,7 +764,6 @@
         }
 
         function sanitizeDates(data) {
-            // Converts Google Sheets UTC timestamps back to proper local date strings 
             for (const key in data) {
                 if (Array.isArray(data[key])) {
                     data[key].forEach(row => {
@@ -784,10 +783,9 @@
         }
 
         async function loadDataFromCloud() {
-            if (!GOOGLE_SCRIPT_URL) return; // Silent fallback to local demo data
+            if (!GOOGLE_SCRIPT_URL) return;
             updateSyncUI('☁️ Syncing...', false);
 
-            // Show Full Screen Loader
             const globalLoader = document.getElementById('global-loader');
             if (globalLoader) globalLoader.style.display = 'flex';
 
@@ -795,23 +793,20 @@
                 const res = await fetch(GOOGLE_SCRIPT_URL);
                 let data = await res.json();
 
-                // Verify valid data structure before overwriting
                 if (data && Object.keys(data).length > 0 && data.products && data.products.length > 0) {
-                    data = sanitizeDates(data); // <--- Fixes Google Sheets Timezone bug!
+                    data = sanitizeDates(data);
 
-                    // To ensure compatibility with older saves
                     if (data.biz && !Array.isArray(data.biz)) {
                         data.biz = [data.biz];
                     } else if (!data.biz || data.biz.length === 0) {
-                        data.biz = [...appData.biz]; // keep fallback
+                        data.biz = [...appData.biz];
                     }
 
-                    // Ensure expenses array exists
                     if (!data.expenses) {
                         data.expenses = [];
                     }
 
-                    appData = { ...appData, ...data }; // Merge cloud data into appData
+                    appData = { ...appData, ...data };
                     updateSyncUI('☁️ Synced', false);
                     showToast("Cloud data loaded securely.", "success");
                 } else {
@@ -824,13 +819,11 @@
                 updateSyncUI('☁️ Sync Error', true);
                 showToast("Failed to load from cloud.", "error");
             } finally {
-                // Hide Full Screen Loader
                 if (globalLoader) globalLoader.style.display = 'none';
-                updateNotificationBadge(); // Ensure notifications are correct after loading data
+                updateNotificationBadge();
             }
         }
 
-        // Optimization: Debouncing variables
         let syncTimeout = null;
 
         function saveDataToCloud() {
@@ -839,13 +832,12 @@
 
             if (syncTimeout) clearTimeout(syncTimeout);
 
-            // Wait 2.5 seconds after the user's last action before actually sending data.
             syncTimeout = setTimeout(() => {
                 updateSyncUI('☁️ Saving...', false);
 
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Bypasses CORS preflight
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify(appData)
                 }).then(res => {
                     updateSyncUI('☁️ Synced', false);
@@ -853,7 +845,7 @@
                     console.error("Save error:", err);
                     updateSyncUI('☁️ Save Error', true);
                 });
-            }, 2500); // 2.5 second delay
+            }, 2500);
         }
 
         /* ═══════════════════════════════════════════════════════════════
@@ -912,7 +904,6 @@
 
             openModal("Notifications 🔔", html, 480);
         }
-
 
         /* ═══════════════════════════════════════════════════════════════
            ICONS (SVG Strings)
@@ -1004,7 +995,7 @@
                 { date: "2026-03-21", productId: 11, product: "Surf Excel 500g", type: "in", qty: 30, ref: "PO-000", balance: 60 },
             ],
             expenses: [], // Daily Expenses Track
-            biz: [{ name: "My Kirana Store", owner: "Ramesh Gupta", phone: "9876543210", email: "ramesh@store.in", address: "123, MG Road, Nagpur, Maharashtra - 440001", gstin: "27AAAAA0000A1Z5", pan: "AAAAA0000A", state: "Maharashtra", stateCode: "27", upiId: "ramesh@upi", bankAc: "1234567890", ifsc: "HDFC0001234" }]
+            biz: [{ name: "Bharat POS", owner: "Ramesh Gupta", phone: "9876543210", email: "ramesh@store.in", address: "123, MG Road, Nagpur, Maharashtra - 440001", gstin: "27AAAAA0000A1Z5", pan: "AAAAA0000A", state: "Maharashtra", stateCode: "27", upiId: "ramesh@upi", bankAc: "1234567890", ifsc: "HDFC0001234", logo: "https://drive.google.com/uc?export=view&id=1rCxVDRiNi0Hg8n_ACpQwN_PBcHO1aot1" }]
         };
 
         const CATS = ["All", "Grocery", "Dairy", "Personal Care", "Home Care", "Snacks", "Beverages"];
@@ -1020,8 +1011,8 @@
         const NAV = [
             { id: "dashboard", label: "Dashboard", icon: ic.dashboard },
             { id: "pos", label: "New Sale", icon: ic.pos },
-            { id: "khata", label: "Khata Book", icon: ic.khata }, // New Feature
-            { id: "expenses", label: "Daily Expenses", icon: ic.expense }, // New Feature
+            { id: "khata", label: "Khata Book", icon: ic.khata },
+            { id: "expenses", label: "Daily Expenses", icon: ic.expense },
             { id: "products", label: "Products", icon: ic.products },
             { id: "purchase", label: "Purchase Orders", icon: ic.purchase },
             { id: "inventory", label: "Inventory", icon: ic.inventory },
@@ -1241,7 +1232,7 @@
             let html = `
         <div style="margin-bottom:24px; display:flex; justify-content:space-between; align-items:flex-end;">
             <div>
-                <div style="font-size:22px; font-weight:800;">Welocme Back to Bharat POS</div>
+                <div style="font-size:22px; font-weight:800;">Good Morning! 🙏</div>
                 <div style="font-size:13px; color:var(--slate); margin-top:3px;">Your store dashboard</div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
@@ -1383,7 +1374,7 @@
 
         function updatePOSGrid() {
             const s = posState.search.toLowerCase();
-            const filtered = appData.products.filter(p => (posState.cat === "All" || p.cat === posState.cat) && (p.name.toLowerCase().includes(s) || p.barcode.includes(s)));
+            const filtered = appData.products.filter(p => (posState.cat === "All" || p.cat === posState.cat) && (String(p.name || "").toLowerCase().includes(s) || String(p.barcode || "").toLowerCase().includes(s)));
             el('pos-grid').innerHTML = filtered.map(p => `
         <div class="card pos-grid-item" onclick="posAddToCart(${p.id})" style="padding:13px 13px 11px; cursor:pointer; user-select:none; transition:all .15s;">
             <div style="font-size:10px; font-weight:700; color:var(--slate); text-transform:uppercase; letter-spacing:.5px; margin-bottom:3px;">${p.cat}</div>
@@ -1669,7 +1660,7 @@
 
         function updateKhataTable() {
             const s = khataState.search.toLowerCase();
-            const dueOrders = appData.orders.filter(o => o.status === 'advance' && o.dueAmount > 0 && (o.customer.toLowerCase().includes(s) || o.id.toLowerCase().includes(s)));
+            const dueOrders = appData.orders.filter(o => o.status === 'advance' && o.dueAmount > 0 && (String(o.customer || "").toLowerCase().includes(s) || String(o.id || "").toLowerCase().includes(s)));
 
             el('khata-table-body').innerHTML = dueOrders.length === 0 ? `<tr><td colspan="7" style="text-align:center; padding:20px; color:var(--slate);">No pending dues found 🎉</td></tr>` : dueOrders.map(o => `
                 <tr>
@@ -1822,7 +1813,7 @@
 
         function updateProductsTable() {
             const s = proState.search.toLowerCase();
-            const filtered = appData.products.filter(p => p.name.toLowerCase().includes(s) || p.cat.toLowerCase().includes(s));
+            const filtered = appData.products.filter(p => String(p.name || "").toLowerCase().includes(s) || String(p.cat || "").toLowerCase().includes(s));
             el('products-table-body').innerHTML = filtered.map(p => `
         <tr>
             <td><div style="font-weight:600;">${p.name}</div><div style="font-size:11px; color:var(--slate);">${p.barcode}</div></td>
@@ -1833,9 +1824,38 @@
             <td>${getBadgeHTML("green", p.gst + "%")}</td>
             <td><span style="font-weight:600; color:${p.stock <= p.minStock ? 'var(--red)' : p.stock <= p.minStock * 1.5 ? 'var(--amber)' : 'var(--green)'}">${p.stock} ${p.unit}</span></td>
             <td style="color:var(--slate);">${p.minStock}</td>
-            <td><button onclick="openProductModal(${p.id})" class="btn btn-outline" style="padding:5px 10px; font-size:12px;">${ic.edit} Edit</button></td>
+            <td>
+                <div style="display:flex; gap:6px;">
+                    <button onclick="printProductBarcode(${p.id})" class="btn btn-outline" style="padding:5px 10px; font-size:12px;" title="Print Barcode">${ic.barcode}</button>
+                    <button onclick="openProductModal(${p.id})" class="btn btn-outline" style="padding:5px 10px; font-size:12px;">${ic.edit}</button>
+                </div>
+            </td>
         </tr>
     `).join('');
+        }
+
+        function printProductBarcode(id) {
+            const p = appData.products.find(x => x.id === id);
+            if (!p) return;
+
+            const pr = el('printable-receipt');
+            pr.innerHTML = `
+                <div style="text-align:center; padding: 20px; font-family: monospace;">
+                    <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">${p.name}</div>
+                    <div style="font-size: 12px; margin-bottom: 5px;">MRP: ₹${p.price} (Incl. GST)</div>
+                    <svg id="print-barcode-svg"></svg>
+                </div>
+            `;
+
+            JsBarcode("#print-barcode-svg", p.barcode, {
+                format: "CODE128",
+                width: 2,
+                height: 40,
+                displayValue: true,
+                fontSize: 14
+            });
+
+            setTimeout(() => window.print(), 100);
         }
 
         function openProductModal(id = null) {
@@ -1948,7 +1968,7 @@
 
         function updatePOTable() {
             const s = poState.search.toLowerCase();
-            const filtered = appData.purchaseOrders.filter(po => po.id.toLowerCase().includes(s) || po.supplier.toLowerCase().includes(s));
+            const filtered = appData.purchaseOrders.filter(po => String(po.id || "").toLowerCase().includes(s) || String(po.supplier || "").toLowerCase().includes(s));
             el('po-table-body').innerHTML = filtered.map(po => `
         <tr>
             <td><span style="font-weight:700; color:var(--blue);">${po.id}</span></td>
@@ -2182,7 +2202,7 @@
 
         function updateInventoryTable() {
             const s = invState.search.toLowerCase();
-            const filtered = appData.products.filter(p => p.name.toLowerCase().includes(s) || p.cat.toLowerCase().includes(s));
+            const filtered = appData.products.filter(p => String(p.name || "").toLowerCase().includes(s) || String(p.cat || "").toLowerCase().includes(s));
             const tbody = el('inv-table-body');
             if (!tbody) return;
 
@@ -2274,7 +2294,7 @@
 
         function updateBarcodeTable() {
             const s = barcodeState.search.toLowerCase();
-            const filtered = appData.products.filter(p => p.name.toLowerCase().includes(s) || p.barcode.toLowerCase().includes(s));
+            const filtered = appData.products.filter(p => String(p.name || "").toLowerCase().includes(s) || String(p.barcode || "").toLowerCase().includes(s));
             const tbody = el('barcode-table-body');
             if (!tbody) return;
 
@@ -2567,7 +2587,7 @@
 
         function updateCRMTable() {
             const s = crmState.search.toLowerCase();
-            const filtered = appData.customers.filter(c => c.name.toLowerCase().includes(s) || c.phone.includes(s) || c.city.toLowerCase().includes(s));
+            const filtered = appData.customers.filter(c => String(c.name || "").toLowerCase().includes(s) || String(c.phone || "").includes(s) || String(c.city || "").toLowerCase().includes(s));
             const tier = c => c.totalSpend >= 10000 ? "Gold" : c.totalSpend >= 5000 ? "Silver" : "Bronze";
             const tierColor = t => t === "Gold" ? "amber" : t === "Silver" ? "slate" : "saffron";
 
@@ -2705,7 +2725,7 @@
 
         function updateOrdersTable() {
             const s = ordState.search.toLowerCase();
-            const filtered = appData.orders.filter(o => o.id.toLowerCase().includes(s) || o.customer.toLowerCase().includes(s));
+            const filtered = appData.orders.filter(o => String(o.id || "").toLowerCase().includes(s) || String(o.customer || "").toLowerCase().includes(s));
 
             const tbody = el('orders-table-body');
             if (!tbody) return;
